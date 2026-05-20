@@ -62,11 +62,9 @@ class AuthController extends Controller
         ]);
     }
 
-    public function refresh(){}
- /*    {
-        return response()->json([
-            'access_token' => auth('api')->refresh(),
-            'token_type' => 'bearer',
-        ]);
-    } */
+
+    public function refresh()
+    {
+
+    }
 }
