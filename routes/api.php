@@ -17,6 +17,9 @@ Route::group(['prefix' => 'v1', 'middleware' => 'auth:api'], function () {
 
     Route::get('notes', [NoteController::class, 'index']);
     Route::post('notes', [NoteController::class, 'store']);
+    Route::get('notes/{note}', [NoteController::class, 'show']);
+    Route::put('notes/{note}', [NoteController::class, 'update']);
+    Route::delete('notes/{note}', [NoteController::class, 'destroy']);
 });
 
 

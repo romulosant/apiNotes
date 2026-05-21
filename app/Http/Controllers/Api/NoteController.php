@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreNoteRequest;
+use App\Http\Requests\UpdateNoteRequest;
 use App\Models\Note;
 use http\Client\Curl\User;
 use Illuminate\Http\Request;
@@ -48,7 +49,7 @@ class NoteController extends Controller
             'content' => $data['content'],
         ]);
 
-        return new NoteResource($note)
+        return (new NoteResource($note))
             ->response()
             ->setStatusCode(201);
     }
@@ -58,23 +59,43 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        //
+        $user = auth()->user();
+
+        if ($note->user_id !== $user->id) {
+            abort(403, 'Acesso negado.');
+        }
+
+        return response()->json([
+            'note' => $note,
+        ], 200);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Note $note)
+    public function edit(UpdateNoteRequest $request,Note $note)
     {
-        //
+
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Note $note)
+    public function update(UpdateNoteRequest $request, Note $note)
     {
-        //
+        $data = $request->validated();
+
+        $user = auth()->user();
+
+        if($note->user_id !== $user->id){
+            abort(403, 'Acesso negado.');
+        }
+
+        $note->update($data);
+
+        return (new NoteResource($note))
+            ->response()
+            ->setStatusCode(200);
     }
 
     /**
@@ -82,6 +103,16 @@ class NoteController extends Controller
      */
     public function destroy(Note $note)
     {
-        //
+        $user = auth()->user();
+
+        if ($note->user_id !== $user->id) {
+            abort(403, 'Acesso negado.');
+        }
+
+        $note->delete();
+
+        return response()->json([
+            'message' => 'Nota removida com sucesso!'
+        ], 200);
     }
 }

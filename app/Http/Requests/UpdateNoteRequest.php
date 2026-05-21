@@ -12,7 +12,7 @@ class UpdateNoteRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,15 @@ class UpdateNoteRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            "note" => "string|",
+            "content" => "string|",
+        ];
+    }
+
+    public function messages(): array   {
+        return [
+            "note.string" => "Insira uma texto.",
+            "content.string" => "Insira uma texto.",
         ];
     }
 }
