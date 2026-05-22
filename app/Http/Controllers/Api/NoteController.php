@@ -5,16 +5,30 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreNoteRequest;
 use App\Http\Requests\UpdateNoteRequest;
-use App\Models\Note;
-use http\Client\Curl\User;
-use Illuminate\Http\Request;
-use PhpParser\Node\Stmt\If_;
 use App\Http\Resources\NoteResource;
+use App\Models\Note;
 
 class NoteController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Listar notas do usuário autenticado
+     *
+     * Retorna todas as notas do usuário logado com paginação.
+     *
+     * @group Notas
+     * @authenticated
+     *
+     * @response 200 {
+     *   "data": [
+     *     {
+     *       "id": 1,
+     *       "title": "Minha nota",
+     *       "content": "Conteúdo da nota",
+     *       "created_at": "2026-05-21 10:00:00",
+     *       "updated_at": "2026-05-21 10:00:00"
+     *     }
+     *   ]
+     * }
      */
     public function index()
     {
@@ -28,18 +42,32 @@ class NoteController extends Controller
             ->orderBy('created_at', 'desc')
             ->paginate(10);
 
-        return response()->json([
-            'notes' => $notes,
-        ], 200);
+        return NoteResource::collection($notes);
     }
 
-
     /**
-     * Store a newly created resource in storage.
+     * Criar nova nota
+     *
+     * Cria uma nova nota vinculada ao usuário autenticado.
+     *
+     * @group Notas
+     * @authenticated
+     *
+     * @bodyParam title string required Título da nota. Example: Minha nota
+     * @bodyParam content string Conteúdo da nota. Example: Texto da nota
+     *
+     * @response 201 {
+     *   "data": {
+     *     "id": 1,
+     *     "title": "Minha nota",
+     *     "content": "Texto da nota",
+     *     "created_at": "2026-05-21 10:00:00",
+     *     "updated_at": "2026-05-21 10:00:00"
+     *   }
+     * }
      */
     public function store(StoreNoteRequest $request)
     {
-
         $data = $request->validated();
 
         $user = auth()->user();
@@ -55,7 +83,28 @@ class NoteController extends Controller
     }
 
     /**
-     * Display the specified resource.
+     * Exibir uma nota específica
+     *
+     * Retorna uma nota do usuário autenticado.
+     *
+     * @group Notas
+     * @authenticated
+     *
+     * @urlParam note integer required ID da nota. Example: 1
+     *
+     * @response 200 {
+     *   "data": {
+     *     "id": 1,
+     *     "title": "Minha nota",
+     *     "content": "Conteúdo",
+     *     "created_at": "2026-05-21 10:00:00",
+     *     "updated_at": "2026-05-21 10:00:00"
+     *   }
+     * }
+     *
+     * @response 403 {
+     *   "message": "Acesso negado."
+     * }
      */
     public function show(Note $note)
     {
@@ -65,21 +114,35 @@ class NoteController extends Controller
             abort(403, 'Acesso negado.');
         }
 
-        return response()->json([
-            'note' => $note,
-        ], 200);
+        return new NoteResource($note);
     }
 
     /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(UpdateNoteRequest $request,Note $note)
-    {
-
-    }
-
-    /**
-     * Update the specified resource in storage.
+     * Atualizar nota
+     *
+     * Atualiza uma nota do usuário autenticado.
+     *
+     * @group Notas
+     * @authenticated
+     *
+     * @urlParam note integer required ID da nota. Example: 1
+     *
+     * @bodyParam title string Título da nota. Example: Novo título
+     * @bodyParam content string Conteúdo da nota. Example: Novo conteúdo
+     *
+     * @response 200 {
+     *   "data": {
+     *     "id": 1,
+     *     "title": "Novo título",
+     *     "content": "Novo conteúdo",
+     *     "created_at": "2026-05-21 10:00:00",
+     *     "updated_at": "2026-05-21 10:05:00"
+     *   }
+     * }
+     *
+     * @response 403 {
+     *   "message": "Acesso negado."
+     * }
      */
     public function update(UpdateNoteRequest $request, Note $note)
     {
@@ -87,19 +150,32 @@ class NoteController extends Controller
 
         $user = auth()->user();
 
-        if($note->user_id !== $user->id){
+        if ($note->user_id !== $user->id) {
             abort(403, 'Acesso negado.');
         }
 
         $note->update($data);
 
-        return (new NoteResource($note))
-            ->response()
-            ->setStatusCode(200);
+        return new NoteResource($note);
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Deletar nota
+     *
+     * Remove uma nota do usuário autenticado.
+     *
+     * @group Notas
+     * @authenticated
+     *
+     * @urlParam note integer required ID da nota. Example: 1
+     *
+     * @response 200 {
+     *   "message": "Nota removida com sucesso!"
+     * }
+     *
+     * @response 403 {
+     *   "message": "Acesso negado."
+     * }
      */
     public function destroy(Note $note)
     {

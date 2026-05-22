@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class StoreNoteRequest extends FormRequest
@@ -17,22 +16,23 @@ class StoreNoteRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            "title" => "required|string",
-            "content" => "string",
+            'title' => 'required|string|max:255',
+            'content' => 'nullable|string',
         ];
     }
 
-    public function messages(): array {
+    public function messages(): array
+    {
         return [
-            "title.required" => "Informe um titulo.",
-            "title.string" => "Informe um texto.",
-            "content.string" => "Informe um texto."
+            'title.required' => 'Informe um título.',
+            'title.string' => 'O título deve ser um texto.',
+            'title.max' => 'O título deve ter no máximo 255 caracteres.',
+
+            'content.string' => 'O conteúdo deve ser um texto.',
         ];
     }
 }

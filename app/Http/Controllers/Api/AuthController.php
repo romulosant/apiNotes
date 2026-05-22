@@ -8,10 +8,28 @@ use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 
-
-
 class AuthController extends Controller
 {
+    /**
+     * Registro de usuário
+     *
+     * Cria uma nova conta no sistema.
+     *
+     * @group Autenticação
+     *
+     * @bodyParam name string required Nome do usuário. Example: Rômulo
+     * @bodyParam email string required Email do usuário. Example: user@email.com
+     * @bodyParam password string required Senha do usuário (mínimo 8 caracteres). Example: 12345678
+     *
+     * @response 200 {
+     *   "message": "User registered successfully",
+     *   "user": {
+     *     "id": 1,
+     *     "name": "Rômulo",
+     *     "email": "user@email.com"
+     *   }
+     * }
+     */
     public function register(Request $request)
     {
         $request->validate([
@@ -32,6 +50,25 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Login do usuário
+     *
+     * Autentica o usuário e retorna um token JWT.
+     *
+     * @group Autenticação
+     *
+     * @bodyParam email string required Email do usuário. Example: user@email.com
+     * @bodyParam password string required Senha do usuário. Example: 12345678
+     *
+     * @response 200 {
+     *   "access_token": "jwt_token_here",
+     *   "token_type": "bearer"
+     * }
+     *
+     * @response 401 {
+     *   "error": "Unauthorized"
+     * }
+     */
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -46,6 +83,22 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Usuário autenticado
+     *
+     * Retorna os dados do usuário logado.
+     *
+     * @group Autenticação
+     * @authenticated
+     *
+     * @response 200 {
+     *   "user": {
+     *     "id": 1,
+     *     "name": "Rômulo",
+     *     "email": "user@email.com"
+     *   }
+     * }
+     */
     public function me()
     {
         return response()->json([
@@ -53,6 +106,18 @@ class AuthController extends Controller
         ]);
     }
 
+    /**
+     * Logout do usuário
+     *
+     * Invalida o token atual do usuário.
+     *
+     * @group Autenticação
+     * @authenticated
+     *
+     * @response 200 {
+     *   "message": "Logged out successfully"
+     * }
+     */
     public function logout()
     {
         Auth::guard('api')->logout();
@@ -62,9 +127,4 @@ class AuthController extends Controller
         ]);
     }
 
-
-    public function refresh()
-    {
-
-    }
 }

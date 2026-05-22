@@ -2,7 +2,6 @@
 
 namespace App\Http\Requests;
 
-use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class UpdateNoteRequest extends FormRequest
@@ -17,21 +16,22 @@ class UpdateNoteRequest extends FormRequest
 
     /**
      * Get the validation rules that apply to the request.
-     *
-     * @return array<string, ValidationRule|array<mixed>|string>
      */
     public function rules(): array
     {
         return [
-            "note" => "string|",
-            "content" => "string|",
+            'title' => 'sometimes|string|max:255',
+            'content' => 'sometimes|string',
         ];
     }
 
-    public function messages(): array   {
+    public function messages(): array
+    {
         return [
-            "note.string" => "Insira uma texto.",
-            "content.string" => "Insira uma texto.",
+            'title.string' => 'Insira um título válido.',
+            'title.max' => 'O título deve ter no máximo 255 caracteres.',
+
+            'content.string' => 'Insira um conteúdo válido.',
         ];
     }
 }
