@@ -1,4 +1,4 @@
-# Projeto 01 — Notes API
+# Notes API
 
 API REST de anotações com autenticação JWT, desenvolvida com Laravel.
 
